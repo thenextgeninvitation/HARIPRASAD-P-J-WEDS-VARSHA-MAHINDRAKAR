@@ -453,7 +453,7 @@
     box-shadow: 0 15px 32px rgba(234, 179, 8, 0.65);
   }
 
-  /* Next-Gen Group Copyright & WhatsApp Business Footer (Both Screens) */
+  /* Next-Gen Group Copyright & WhatsApp Business Footer */
   .nextgen-footer {
     margin-top: 1.8rem;
     padding: 1.25rem 0.75rem 0.25rem;
@@ -510,6 +510,36 @@
   .copyright-line strong {
     color: var(--gold-soft);
     font-weight: 700;
+  }
+
+  /* Floating Audio Toggle Button */
+  .music-toggle-btn {
+    position: fixed;
+    bottom: 22px;
+    right: 22px;
+    z-index: 80;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 1.5px solid var(--gold);
+    background: rgba(12, 14, 34, 0.88);
+    color: var(--gold-soft);
+    font-size: 1.3rem;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.65), 0 0 15px rgba(250, 204, 21, 0.35);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .music-toggle-btn.visible {
+    display: flex;
+  }
+  .music-toggle-btn:hover {
+    transform: scale(1.08);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 22px rgba(250, 204, 21, 0.6);
   }
 
   /* Ribbon Cut Overlay & Sparkles */
@@ -589,6 +619,14 @@
 </style>
 </head>
 <body>
+
+<!-- Continuous Background Music -->
+<audio id="bg-music" src="music.mp3" loop preload="auto"></audio>
+
+<!-- Floating Mute/Unmute Button -->
+<button id="music-toggle" class="music-toggle-btn" type="button" aria-label="Toggle Music" title="ಸಂಗೀತ ಆನ್/ಆಫ್">
+  🔊
+</button>
 
 <!-- Sparkles & Ribbon Split Animation Layers -->
 <div id="sparkles-container"></div>
@@ -891,12 +929,14 @@
 </section>
 
 <script>
-  // 1. Ribbon Cut & Sparkles Handler
+  // 1. Ribbon Cut, Sparkles & Continuous Music Handler
   const openBtn = document.getElementById('open-btn');
   const openerScreen = document.getElementById('opener-screen');
   const invitationScreen = document.getElementById('invitation-screen');
   const ribbonOverlay = document.getElementById('ribbon-overlay');
   const sparklesContainer = document.getElementById('sparkles-container');
+  const bgMusic = document.getElementById('bg-music');
+  const musicToggle = document.getElementById('music-toggle');
 
   function createSparkles() {
     sparklesContainer.innerHTML = '';
@@ -920,12 +960,28 @@
   }
 
   openBtn.addEventListener('click', function () {
+    // Start continuous music playback on ribbon cut
+    bgMusic.loop = true;
+    bgMusic.play().catch(err => console.warn('Audio playback prevented:', err));
+    musicToggle.classList.add('visible');
+
     openerScreen.classList.add('hidden');
     invitationScreen.classList.add('active');
     ribbonOverlay.classList.add('active');
     createSparkles();
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setTimeout(() => { ribbonOverlay.classList.remove('active'); }, 1200);
+  });
+
+  // Mute / Unmute toggle handler
+  musicToggle.addEventListener('click', function () {
+    if (bgMusic.paused) {
+      bgMusic.play();
+      musicToggle.textContent = '🔊';
+    } else {
+      bgMusic.pause();
+      musicToggle.textContent = '🔇';
+    }
   });
 
   // 2. Live Countdown to 29-11-2026 09:00 AM IST
